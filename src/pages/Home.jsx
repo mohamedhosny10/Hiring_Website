@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import ApplicantForm from '../components/ApplicantForm.jsx'
 import ApplicantTable from '../components/ApplicantTable.jsx'
@@ -14,16 +15,10 @@ function Home() {
     setLoading(true)
     setError('')
 
-    let query = supabase
+    const { data, error } = await supabase
       .from('applicants')
       .select('*')
       .order('created_at', { ascending: false })
-
-    if (statusFilter !== 'All') {
-      query = query.eq('status', statusFilter)
-    }
-
-    const { data, error } = await query
 
     setLoading(false)
 
@@ -44,14 +39,40 @@ function Home() {
     loadApplicants()
   }
 
+  const filtered =
+    statusFilter === 'All'
+      ? applicants
+      : applicants.filter((a) => a.status === statusFilter)
+
   return (
     <div className="page">
       <nav className="navbar">
-        <img src="/Megasoft Logo-04.avif" alt="Megasoft" className="logo" />
+        <Link to="/">
+          <img src="/Megasoft.png" alt="Megasoft" className="logo" />
+        </Link>
         <h1>Hiring Tracker</h1>
       </nav>
 
       <main className="container">
+        <div className="stats-cards">
+          <div className="stat-card stat-total">
+            <span>Total</span>
+            <strong>{applicants.length}</strong>
+          </div>
+          <div className="stat-card stat-interview">
+            <span>Interview</span>
+            <strong>{applicants.filter((a) => a.status === 'Interview').length}</strong>
+          </div>
+          <div className="stat-card stat-hired">
+            <span>Hired</span>
+            <strong>{applicants.filter((a) => a.status === 'Hired').length}</strong>
+          </div>
+          <div className="stat-card stat-rejected">
+            <span>Rejected</span>
+            <strong>{applicants.filter((a) => a.status === 'Rejected').length}</strong>
+          </div>
+        </div>
+
         <div className="toolbar">
           <label className="filter-label">
             Filter by status
@@ -80,7 +101,7 @@ function Home() {
 
         {error && <p className="error-msg">{error}</p>}
         {loading && <p className="loading-msg">Loading applicants...</p>}
-        {!loading && !error && <ApplicantTable applicants={applicants} />}
+        {!loading && !error && <ApplicantTable applicants={filtered} />}
       </main>
     </div>
   )

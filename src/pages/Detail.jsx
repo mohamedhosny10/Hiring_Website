@@ -11,8 +11,6 @@ function Detail() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
-
   useEffect(() => {
     async function loadApplicant() {
       setLoading(true)
@@ -42,7 +40,6 @@ function Detail() {
   async function handleSave() {
     setSaving(true)
     setError('')
-    setSaved(false)
 
     const { error } = await supabase
       .from('applicants')
@@ -56,7 +53,7 @@ function Detail() {
       return
     }
 
-    setSaved(true)
+    navigate('/')
   }
 
   if (loading) {
@@ -85,7 +82,9 @@ function Detail() {
   return (
     <div className="page">
       <nav className="navbar">
-        <img src="/Megasoft Logo-04.avif" alt="Megasoft" className="logo" />
+        <Link to="/">
+          <img src="/Megasoft.png" alt="Megasoft" className="logo" />
+        </Link>
         <h1>Applicant Detail</h1>
       </nav>
 
@@ -133,7 +132,6 @@ function Detail() {
           </label>
 
           {error && <p className="error-msg">{error}</p>}
-          {saved && <p className="success-msg">Saved!</p>}
 
           <button type="button" onClick={handleSave} disabled={saving}>
             {saving ? 'Saving...' : 'Save'}

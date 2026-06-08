@@ -33,8 +33,21 @@ function ApplicantForm({ onAdded }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    setSaving(true)
     setError('')
+
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    const phoneOk = /^(\+20|0020|20)?0?1[0125]\d{8}$/.test(phone.replace(/\s/g, ''))
+
+    if (!emailOk) {
+      setError('Please enter a valid email address')
+      return
+    }
+    if (!phoneOk) {
+      setError('Please enter a valid Egyptian phone (e.g. 01012345678)')
+      return
+    }
+
+    setSaving(true)
 
     const { error } = await supabase.from('applicants').insert({
       full_name: fullName,
@@ -91,6 +104,8 @@ function ApplicantForm({ onAdded }) {
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
+          placeholder="01012345678"
+          required
         />
       </label>
 
